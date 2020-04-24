@@ -5,12 +5,11 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql');
 
 const connection = mysql.createConnection({
-  host: 'preethis89.cn467llviddc.eu-west-1.rds.amazonaws.com',
-  user: 'admin',
-  password: 'Mangalam1',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
   database: 'todo',
 });
-
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -57,5 +56,20 @@ app.post('/tasks', (req, res) => {
 
 app.put('/tasks/:id', (req, res) => {
 
+});
+
+app.delete('/tasks/:id', (request, response) => {
+  const { id } = request.params;
+  // eslint-disable-next-line no-template-curly-in-string
+  const query = 'Delete from task where taskId = (?)';
+  connection.query(query, [request.params], (err, data) => {
+    if (err) {
+      // eslint-disable-next-line no-console
+      console.log('Error in Mysql', err);
+      response.status(500).send(err);
+    } else {
+      response.status(200).send(`Deleted task with ID ${id}!`);
+    }
+  });
 });
 module.exports.app = serverlessHttp(app);
