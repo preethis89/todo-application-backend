@@ -52,24 +52,37 @@ app.post('/tasks', (req, res) => {
     }
   });
 });
-
-
-app.put('/tasks/:id', (req, res) => {
-
-});
-
-app.delete('/tasks/:id', (request, response) => {
-  const { id } = request.params;
+app.delete('/tasks/:taskId', (request, response) => {
+  // eslint-disable-next-line radix
+  // const { taskId } = request.params;
   // eslint-disable-next-line no-template-curly-in-string
-  const query = 'Delete from task where taskId = (?)';
-  connection.query(query, [request.params], (err, data) => {
+  const query = 'Delete from task where taskId = ?';
+  connection.query(query, [request.params.taskId], (err, data) => {
     if (err) {
       // eslint-disable-next-line no-console
       console.log('Error in Mysql', err);
       response.status(500).send(err);
     } else {
-      response.status(200).send(`Deleted task with ID ${id}!`);
+      // eslint-disable-next-line no-template-curly-in-string
+      response.status(200).send('Deleted task');
     }
   });
 });
+
+app.put('/tasks/:id', (req, res) => {
+  const query = 'Update task set text = ? where taskId = ?';
+  connection.query(query, ['Clean the garden', req.params.taskId], (err, data) => {
+    if (err) {
+      // eslint-disable-next-line no-console
+      console.log('Error in Mysql', err);
+      res.status(500).send(err);
+    } else {
+      // eslint-disable-next-line no-template-curly-in-string
+      res.status(200).send('Updated task', data);
+    }
+  });
+
+});
+
+
 module.exports.app = serverlessHttp(app);
